@@ -1,9 +1,10 @@
 import os
-import torch
 from torchvision import transforms
 from torch.utils.data import DataLoader, Dataset
-from PIL import Image 
+from PIL import Image
 from sklearn.preprocessing import LabelEncoder
+import pickle
+
 
 class MatekDataLoader(Dataset):
     def __init__(self, data_dir, split='train', transform=None):
@@ -14,7 +15,7 @@ class MatekDataLoader(Dataset):
         # Define the directory for the specified split
         self.split_dir = os.path.join(data_dir, split)
 
-        self.image_files = [f for f in os.listdir(self.split_dir) if f.endswith('.tiff')]
+        self.image_files = [f for f in os.listdir(self.split_dir) if f.endswith('.jpg')]
 
         self.label_encoder = LabelEncoder()
 
@@ -22,29 +23,42 @@ class MatekDataLoader(Dataset):
         self.labels = [os.path.basename(f).split('_')[0] for f in self.image_files]
         self.encoded_labels = self.label_encoder.fit_transform(self.labels)
 
+        self.images = {}
+
+        for img_filename in self.image_files:
+
+            # read
+            img_path = os.path.join(self.split_dir, img_filename)  # Get the image path
+            image = Image.open(img_path).convert('RGB')
+
+            if self.transform:
+                image = self.transform(image)
+
+            self.images[img_filename] = image
+
+        # Save the image data to a pickle file
+        pickle_filename = os.path.join(self.data_dir, f'{split}_images.pickle')
+        with open(pickle_filename, 'wb') as pickle_file:
+            pickle.dump(self.images, pickle_file)
+
     def __len__(self):
         return len(self.image_files)
 
     def __getitem__(self, idx):
-        img_filename = self.image_files[idx]  # Get the image filename
-        img_path = os.path.join(self.split_dir, img_filename)  # Get the image path
-
-        # Load the image using PIL
-        image = Image.open(img_path).convert('RGB')
+        image_filename = self.image_files[idx]  # Get the image filename
+        image = self.images[image_filename]  # Get
 
         # Extract encoded label from the precomputed encoded_labels
         label = self.encoded_labels[idx]
 
-        if self.transform:
-            image = self.transform(image)
-
         return image, label
+
 
 def get_data_loaders(data_dir, batch_size, num_workers):
     transform = transforms.Compose([
         transforms.Resize((224, 224)),  # Resize
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),  #normalization
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),  # normalization
     ])
 
     train_dataset = MatekDataLoader(data_dir, split='train', transform=transform)
@@ -56,4 +70,3 @@ def get_data_loaders(data_dir, batch_size, num_workers):
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
     return train_loader, val_loader, test_loader
-

@@ -1,26 +1,27 @@
-import os
 import torch
 import torch.nn as nn
 from torchvision import models
 from DataLoader import get_data_loaders
+from sklearn.metrics import accuracy_score, f1_score
 
 batch_size = 128
 
 # Data loader
-_, _, test_loader = get_data_loaders('/lustre/groups/labs/marr/qscd01/datasets/191024_AML_Matek/train_val_test', batch_size=batch_size, num_workers=0)
+_, _, test_loader = get_data_loaders('/lustre/groups/labs/marr/qscd01/datasets/191024_AML_Matek/train_val_test',
+                                     batch_size=batch_size, num_workers=0)
 
-# of classes in test data
+# Number of classes in test data
 unique_labels = set()
 for _, label in test_loader.dataset:
     unique_labels.add(label)
 
 num_classes = len(unique_labels)
 
-#pre-trained ResNet-50 model
+# Pre-trained ResNet-50 model
 model = models.resnet50(pretrained=True, progress=True)
 model.fc = nn.Linear(model.fc.in_features, num_classes)
 
-# Load the trained weights 
+# Load the trained weights
 model.load_state_dict(torch.load('resnet_model.pth'))
 
 # Loss function
@@ -34,6 +35,8 @@ model.eval()
 test_loss = 0.0
 correct = 0
 total = 0
+true_labels = []
+predicted_labels = []
 
 with torch.no_grad():
     for images, labels in test_loader:
@@ -46,8 +49,11 @@ with torch.no_grad():
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
 
-test_accuracy = 100 * correct / total
+        true_labels.extend(labels.cpu().numpy())
+        predicted_labels.extend(predicted.cpu().numpy())
+
+test_accuracy = accuracy_score(true_labels, predicted_labels)
 test_loss /= len(test_loader)
+test_f1 = f1_score(true_labels, predicted_labels, average='weighted')
 
-print(f"Test Loss: {test_loss:.4f}, Test Accuracy: {test_accuracy:.2f}%")
-
+print(f"Test Loss: {test_loss:.4f}, Test Accuracy: {test_accuracy:.2%}, Test F1 Score: {test_f1:.4f}")
