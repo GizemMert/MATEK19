@@ -3,6 +3,7 @@ import torch.nn as nn
 from torchvision import models
 from DataLoader import get_data_loaders
 from sklearn.metrics import accuracy_score, f1_score
+from torchvision.models import ResNet50_Weights
 
 batch_size = 128
 
@@ -18,7 +19,7 @@ for _, label in test_loader.dataset:
 num_classes = len(unique_labels)
 
 # Pre-trained ResNet-50 model
-model = models.resnet50(pretrained=True, progress=True)
+model = models.resnet50(weights=ResNet50_Weights.DEFAULT)
 model.fc = nn.Linear(model.fc.in_features, num_classes)
 
 # Load the trained weights

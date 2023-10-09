@@ -130,7 +130,7 @@ for epoch in range(num_epochs):
     if val_loss < best_val_loss:
         best_val_loss = val_loss
         best_epoch = epoch + 1
-        torch.save(model.state_dict(), 'best_model.pth')
+        torch.save(model.state_dict(), 'resnet_model.pth')
 
 results.close()
 
