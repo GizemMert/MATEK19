@@ -3,7 +3,6 @@ from torchvision import transforms
 from torch.utils.data import DataLoader, Dataset
 from PIL import Image
 from sklearn.preprocessing import LabelEncoder
-import pickle
 
 
 class MatekDataLoader(Dataset):
@@ -35,11 +34,6 @@ class MatekDataLoader(Dataset):
                 image = self.transform(image)
 
             self.images[img_filename] = image
-
-        # Save the image data to a pickle file
-        pickle_filename = os.path.join(self.data_dir, f'{split}_images.pickle')
-        with open(pickle_filename, 'wb') as pickle_file:
-            pickle.dump(self.images, pickle_file)
 
     def __len__(self):
         return len(self.image_files)
