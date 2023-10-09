@@ -15,7 +15,7 @@ class MatekDataLoader(Dataset):
         # Define the directory for the specified split
         self.split_dir = os.path.join(data_dir, split)
 
-        self.image_files = [f for f in os.listdir(self.split_dir) if f.endswith('.jpg')]
+        self.image_files = [f for f in os.listdir(self.split_dir) if f.endswith('.tiff')]
 
         self.label_encoder = LabelEncoder()
 
