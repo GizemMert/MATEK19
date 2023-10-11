@@ -4,13 +4,13 @@ import torch.optim as optim
 from torchvision import models
 from sklearn.metrics import accuracy_score, f1_score
 from torchvision.models import ResNet50_Weights
-
+from Model_Custom import CustomNetwork
 from DataLoader import get_data_loaders
 import matplotlib.pyplot as plt
 
 
 batch_size = 128
-num_epochs = 30
+num_epochs = 50
 learning_rate = 0.001
 
 # Data loaders
@@ -25,9 +25,8 @@ for _, label in train_loader.dataset:
 
 num_classes = len(unique_labels)
 
-# pre-trained ResNet-50 model
-model = models.resnet50(weights=ResNet50_Weights.DEFAULT)
-model.fc = nn.Linear(model.fc.in_features, num_classes)
+# load custom network
+model = CustomNetwork(num_classes)
 
 # Loss function and optimizer
 criterion = nn.CrossEntropyLoss()
@@ -48,93 +47,99 @@ val_losses = []
 val_accuracies = []
 val_f1s = []
 
-best_val_loss = float('inf')
+best_val_f1 = 0.0
 best_epoch = 0
 
-for epoch in range(num_epochs):
-    model.train()
-    train_loss = 0.0
-    correct_train = 0
-    total_train = 0
-    true_labels_train = []
-    predicted_labels_train = []
+try:
+    for epoch in range(num_epochs):
+        model.train()
+        train_loss = 0.0
+        correct_train = 0
+        total_train = 0
+        true_labels_train = []
+        predicted_labels_train = []
 
-    for images, labels in train_loader:
-        images = images.to(device)
-        labels = labels.to(device)
-        optimizer.zero_grad()
-        outputs = model(images)
-        loss = criterion(outputs, labels)
-        loss.backward()
-        optimizer.step()
-
-        train_loss += loss.item()
-        _, predicted = torch.max(outputs.data, 1)
-        total_train += labels.size(0)
-        correct_train += (predicted == labels).sum().item()
-
-        true_labels_train.extend(labels.cpu().numpy())
-        predicted_labels_train.extend(predicted.cpu().numpy())
-
-    train_loss /= len(train_loader)
-    train_accuracy = accuracy_score(true_labels_train, predicted_labels_train)
-    train_f1 = f1_score(true_labels_train, predicted_labels_train, average='weighted')
-
-    train_losses.append(train_loss)
-    train_accuracies.append(train_accuracy)
-    train_f1s.append(train_f1)
-
-    # Validation loop
-    model.eval()
-    val_loss = 0.0
-    correct_val = 0
-    total_val = 0
-    true_labels_val = []
-    predicted_labels_val = []
-
-    with torch.no_grad():
-        for images, labels in val_loader:
+        for images, labels in train_loader:
             images = images.to(device)
             labels = labels.to(device)
+            optimizer.zero_grad()
             outputs = model(images)
             loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
 
-            val_loss += loss.item()
+            train_loss += loss.item()
             _, predicted = torch.max(outputs.data, 1)
-            total_val += labels.size(0)
-            correct_val += (predicted == labels).sum().item()
+            total_train += labels.size(0)
+            correct_train += (predicted == labels).sum().item()
 
-            true_labels_val.extend(labels.cpu().numpy())
-            predicted_labels_val.extend(predicted.cpu().numpy())
+            true_labels_train.extend(labels.cpu().numpy())
+            predicted_labels_train.extend(predicted.cpu().numpy())
 
-    val_loss /= len(val_loader)
-    val_accuracy = accuracy_score(true_labels_val, predicted_labels_val)
-    val_f1 = f1_score(true_labels_val, predicted_labels_val, average='weighted')
+        train_loss /= len(train_loader)
+        train_accuracy = accuracy_score(true_labels_train, predicted_labels_train)
+        train_f1 = f1_score(true_labels_train, predicted_labels_train, average='weighted')
 
-    val_losses.append(val_loss)
-    val_accuracies.append(val_accuracy)
-    val_f1s.append(val_f1)
+        train_losses.append(train_loss)
+        train_accuracies.append(train_accuracy)
+        train_f1s.append(train_f1)
 
-    print(f"Epoch {epoch + 1}/{num_epochs}, "
-          f"Train Loss: {train_loss:.4f}, Train Accuracy: {train_accuracy:.2%}, Train F1: {train_f1:.4f}, "
-          f"Val Loss: {val_loss:.4f}, Val Accuracy: {val_accuracy:.2%}, Val F1: {val_f1:.4f}")
+        # Validation loop
+        model.eval()
+        val_loss = 0.0
+        correct_val = 0
+        total_val = 0
+        true_labels_val = []
+        predicted_labels_val = []
 
-    # Save results to the file
-    results.write(f"Epoch {epoch + 1}/{num_epochs}\n")
-    results.write(
-        f"Train Loss: {train_loss:.4f}, Train Accuracy: {train_accuracy:.2%}, Train F1: {train_f1:.4f}\n")
-    results.write(
-        f"Val Loss: {val_loss:.4f}, Val Accuracy: {val_accuracy:.2%}, Val F1: {val_f1:.4f}\n")
-    results.write("\n")
+        with torch.no_grad():
+            for images, labels in val_loader:
+                images = images.to(device)
+                labels = labels.to(device)
+                outputs = model(images)
+                loss = criterion(outputs, labels)
 
-    if val_loss < best_val_loss:
-        best_val_loss = val_loss
-        best_epoch = epoch + 1
-        torch.save(model.state_dict(), 'resnet_model.pth')
+                val_loss += loss.item()
+                _, predicted = torch.max(outputs.data, 1)
+                total_val += labels.size(0)
+                correct_val += (predicted == labels).sum().item()
 
-results.close()
+                true_labels_val.extend(labels.cpu().numpy())
+                predicted_labels_val.extend(predicted.cpu().numpy())
 
-print(f"Best Validation Loss: {best_val_loss:.4f} at Epoch {best_epoch}")
+        val_loss /= len(val_loader)
+        val_accuracy = accuracy_score(true_labels_val, predicted_labels_val)
+        val_f1 = f1_score(true_labels_val, predicted_labels_val, average='weighted')
+
+        val_losses.append(val_loss)
+        val_accuracies.append(val_accuracy)
+        val_f1s.append(val_f1)
+
+        print(f"Epoch {epoch + 1}/{num_epochs}, "
+              f"Train Loss: {train_loss:.4f}, Train Accuracy: {train_accuracy:.2%}, Train F1: {train_f1:.4f}, "
+              f"Val Loss: {val_loss:.4f}, Val Accuracy: {val_accuracy:.2%}, Val F1: {val_f1:.4f}")
+
+        # Save results to the file
+        results.write(f"Epoch {epoch + 1}/{num_epochs}\n")
+        results.write(
+            f"Train Loss: {train_loss:.4f}, Train Accuracy: {train_accuracy:.2%}, Train F1: {train_f1:.4f}\n")
+        results.write(
+            f"Val Loss: {val_loss:.4f}, Val Accuracy: {val_accuracy:.2%}, Val F1: {val_f1:.4f}\n")
+        results.write("\n")
+
+        if val_f1 > best_val_f1:
+            best_val_f1 = val_f1
+            best_epoch = epoch + 1
+            torch.save(model.state_dict(), 'resnet_model.pth')
+
+    results.close()
+
+    print(f"Best Validation F1 score: {best_val_f1:.4f} at Epoch {best_epoch}")
+
+except KeyboardInterrupt:
+    print("Training interrupted. Saving the best model.")
+    print(f"Best Validation F1 score: {best_val_f1:.4f} at Epoch {best_epoch}")
+    torch.save(model.state_dict(), 'resnet_model.pth')
 
 # Plot loss
 plt.figure(figsize=(8, 6))

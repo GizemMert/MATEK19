@@ -1,14 +1,14 @@
 import torch
 import torch.nn as nn
-from torchvision import models
 from DataLoader import get_data_loaders
 from sklearn.metrics import accuracy_score, f1_score
-from torchvision.models import ResNet50_Weights
+from Model_Custom import CustomNetwork
 
 batch_size = 128
 
 # Data loader
-_, _, test_loader = get_data_loaders('/lustre/groups/labs/marr/qscd01/datasets/191024_AML_Matek/train_val_test',
+_, _, test_loader = get_data_loaders('/lustre/groups/labs/marr/qscd01/datasets/191024_AML_Matek'
+                                     '/train_val_test',
                                      batch_size=batch_size, num_workers=0)
 
 # Number of classes in test data
@@ -18,9 +18,8 @@ for _, label in test_loader.dataset:
 
 num_classes = len(unique_labels)
 
-# Pre-trained ResNet-50 model
-model = models.resnet50(weights=ResNet50_Weights.DEFAULT)
-model.fc = nn.Linear(model.fc.in_features, num_classes)
+# Create an instance of your custom network
+model = CustomNetwork(num_classes)
 
 # Load the trained weights
 model.load_state_dict(torch.load('resnet_model.pth'))
