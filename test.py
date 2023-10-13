@@ -3,7 +3,7 @@ import torch.nn as nn
 from DataLoader import get_data_loaders
 from sklearn.metrics import accuracy_score, f1_score
 from Model_Custom import CustomNetwork
-
+from Autoencoder import Autoencoder
 batch_size = 128
 
 # Data loader
@@ -18,14 +18,13 @@ for _, label in test_loader.dataset:
 
 num_classes = len(unique_labels)
 
-# Create an instance of your custom network
-model = CustomNetwork(num_classes)
+model = Autoencoder()  # Create an instance of your Autoencoder model
 
 # Load the trained weights
-model.load_state_dict(torch.load('resnet_model.pth'))
+model.load_state_dict(torch.load('autoencoder_model.pth'))
 
-# Loss function
-criterion = nn.CrossEntropyLoss()
+# Loss function (MSE for autoencoder)
+criterion = nn.MSELoss()
 
 # Evaluation loop
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -33,27 +32,14 @@ model.to(device)
 model.eval()
 
 test_loss = 0.0
-correct = 0
-total = 0
-true_labels = []
-predicted_labels = []
 
 with torch.no_grad():
-    for images, labels in test_loader:
-        images, labels = images.to(device), labels.to(device)
+    for images, _ in test_loader:  # No labels needed for testing
+        images = images.to(device)
         outputs = model(images)
-        loss = criterion(outputs, labels)
-
+        loss = criterion(outputs, images)  # Calculate loss using MSE
         test_loss += loss.item()
-        _, predicted = torch.max(outputs.data, 1)
-        total += labels.size(0)
-        correct += (predicted == labels).sum().item()
 
-        true_labels.extend(labels.cpu().numpy())
-        predicted_labels.extend(predicted.cpu().numpy())
-
-test_accuracy = accuracy_score(true_labels, predicted_labels)
 test_loss /= len(test_loader)
-test_f1 = f1_score(true_labels, predicted_labels, average='weighted')
 
-print(f"Test Loss: {test_loss:.4f}, Test Accuracy: {test_accuracy:.2%}, Test F1 Score: {test_f1:.4f}")
+print(f"Test Loss (MSE): {test_loss:.4f}")
