@@ -40,7 +40,7 @@ class MatekDataLoader(Dataset):
 
     def __getitem__(self, idx):
         image_filename = self.image_files[idx]  # Get the image filename
-        image = self.images[image_filename]  # Get
+        image = self.images[image_filename]  # Get the image
 
         # Extract encoded label from the precomputed encoded_labels
         label = self.encoded_labels[idx]
@@ -50,10 +50,9 @@ class MatekDataLoader(Dataset):
 
 def get_data_loaders(data_dir, batch_size, num_workers):
     transform = transforms.Compose([
-        transforms.Resize((224, 224)),
+        transforms.Resize((224, 224)),  # Resize
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
-        # Normalize to range [-1, 1]
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
 
     train_dataset = MatekDataLoader(data_dir, split='train', transform=transform)
