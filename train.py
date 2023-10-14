@@ -48,12 +48,11 @@ try:
         model.train()
         train_loss = 0.0
 
-        for images, labels in train_loader:
+        for images, _ in train_loader:  # Don't use labels (_)
             images = images.to(device)
-            labels = labels.to(device)
             optimizer.zero_grad()
             outputs = model(images)
-            loss = criterion(outputs, labels)
+            loss = criterion(outputs, images)  # Compare outputs to input images
             loss.backward()
             optimizer.step()
             train_loss += loss.item()
@@ -66,11 +65,10 @@ try:
         val_loss = 0.0
 
         with torch.no_grad():
-            for images, labels in val_loader:
+            for images, _ in val_loader:  # Don't use labels (_)
                 images = images.to(device)
-                labels = labels.to(device)
                 outputs = model(images)
-                loss = criterion(outputs, labels)
+                loss = criterion(outputs, images)  # Compare outputs to input images
                 val_loss += loss.item()
 
         val_loss /= len(val_loader)
@@ -93,6 +91,7 @@ try:
 except KeyboardInterrupt:
     print("Training interrupted.")
     torch.save(model.state_dict(), 'best_autoencoder_model.pth')
+
 
 # Plot loss
 plt.figure(figsize=(8, 6))
