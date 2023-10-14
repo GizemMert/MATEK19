@@ -1,14 +1,11 @@
-import torch
 import torch.nn as nn
 
-# Define the custom encoder using the provided architecture
 
-
-class CustomEncoder(nn.Module):
+class Autoencoder(nn.Module):
     def __init__(self):
-        super(CustomEncoder, self).__init__()
+        super(Autoencoder, self).__init__()
 
-        # Your custom network (the encoder part)
+        # Encoder layers
         self.encoder = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(64),
@@ -33,15 +30,7 @@ class CustomEncoder(nn.Module):
             nn.AdaptiveAvgPool2d((1, 1))
         )
 
-# Define the autoencoder combining encoder and decoder
-
-
-class Autoencoder(nn.Module):
-    def __init__(self):
-        super(Autoencoder, self).__init__()
-        self.encoder = CustomEncoder()
-
-        # Define the decoder
+        # Decoder layers
         self.decoder = nn.Sequential(
             nn.ConvTranspose2d(2048, 1024, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(1024),
