@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from Autoencoder import Autoencoder
 
 
-batch_size = 64
+batch_size = 128
 num_epochs = 50
 learning_rate = 0.001
 
