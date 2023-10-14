@@ -30,9 +30,8 @@ class Autoencoder(nn.Module):
             nn.AdaptiveAvgPool2d((1, 1))
         )
 
-        # Decoder layers
         self.decoder = nn.Sequential(
-            nn.ConvTranspose2d(2048, 1024, kernel_size=3, stride=1, padding=1),
+            nn.ConvTranspose2d(2048, 1024, kernel_size=3, stride=2, padding=1, output_padding=1),
             nn.ReLU(),
             nn.ConvTranspose2d(1024, 512, kernel_size=3, stride=2, padding=1, output_padding=1),
             nn.ReLU(),
