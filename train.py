@@ -40,7 +40,6 @@ train_losses = []
 val_losses = []
 best_val_loss = float('inf')
 
-# Open a file for saving the training results
 results_file = open("training_results_autoencoder.txt", "w")
 
 try:
@@ -48,11 +47,11 @@ try:
         model.train()
         train_loss = 0.0
 
-        for images, _ in train_loader:  # Don't use labels (_)
+        for images, _ in train_loader:
             images = images.to(device)
             optimizer.zero_grad()
             outputs = model(images)
-            loss = criterion(outputs, images)  # Compare outputs to input images
+            loss = criterion(outputs, images)
             loss.backward()
             optimizer.step()
             train_loss += loss.item()
@@ -65,16 +64,15 @@ try:
         val_loss = 0.0
 
         with torch.no_grad():
-            for images, _ in val_loader:  # Don't use labels (_)
+            for images, _ in val_loader:
                 images = images.to(device)
                 outputs = model(images)
-                loss = criterion(outputs, images)  # Compare outputs to input images
+                loss = criterion(outputs, images)
                 val_loss += loss.item()
 
         val_loss /= len(val_loader)
         val_losses.append(val_loss)
 
-        # Print training and validation losses on the same line
         print(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}")
 
         # Save results to the file
@@ -82,8 +80,8 @@ try:
         results_file.write(f"Train Loss: {train_loss:.4f}\n")
         results_file.write(f"Validation Loss: {val_loss:.4f}\n\n")
 
-        if val_loss < best_val_loss:  # Check if the current validation loss is the best
-            best_val_loss = val_loss  # Update the best validation loss
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
             torch.save(model.state_dict(), 'best_autoencoder_model.pth')
 
     results_file.close()
