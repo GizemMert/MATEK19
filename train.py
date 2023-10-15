@@ -30,7 +30,7 @@ model = Autoencoder()
 
 # Loss function and optimizer
 criterion = nn.MSELoss()  # Use Mean Squared Error (MSE) loss
-optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
+optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-5)
 
 # Training loop
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
