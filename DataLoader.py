@@ -27,7 +27,7 @@ class MatekDataLoader(Dataset):
         for img_filename in self.image_files:
 
             # read
-            img_path = os.path.join(self.split_dir, img_filename)  # Get the image path
+            img_path = os.path.join(self.split_dir, img_filename)
             image = Image.open(img_path).convert('RGB')
 
             if self.transform:
@@ -39,10 +39,9 @@ class MatekDataLoader(Dataset):
         return len(self.image_files)
 
     def __getitem__(self, idx):
-        image_filename = self.image_files[idx]  # Get the image filename
-        image = self.images[image_filename]  # Get the image
+        image_filename = self.image_files[idx]
+        image = self.images[image_filename]
 
-        # Extract encoded label from the precomputed encoded_labels
         label = self.encoded_labels[idx]
 
         return image, label
