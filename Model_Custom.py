@@ -77,13 +77,14 @@ class CustomNetwork(nn.Module):
         x = self.bn5(x)
         x = self.relu5(x)
 
+
         x = self.conv6(x)
         x = self.bn6(x)
         x = self.relu6(x)
 
         x = self.avgpool(x)
 
-        x = x.view(x.size(0), -1)
+        x = x.view(-1, 2048)
 
         x = self.fc1(x)
         x = self.relu7(x)
