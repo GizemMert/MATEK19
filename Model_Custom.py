@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 
 
@@ -32,17 +33,17 @@ class CustomNetwork(nn.Module):
         self.maxpool2 = nn.MaxPool2d(2, 2)
 
         # Conv5
-        self.conv5 = nn.Conv2d(512, 1024, kernel_size=3, stride=1, padding=1)
+        self.conv5 = nn.Conv2d(512, 1024, kernel_size=3, stride=2, padding=1)
         self.bn5 = nn.BatchNorm2d(1024)
         self.relu5 = nn.ReLU()
 
         # Conv6
-        self.conv6 = nn.Conv2d(1024, 2048, kernel_size=3, stride=1, padding=1)
+        self.conv6 = nn.Conv2d(1024, 2048, kernel_size=3, stride=2, padding=1)
         self.bn6 = nn.BatchNorm2d(2048)
         self.relu6 = nn.ReLU()
 
         # Global average pool
-        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+        self.avgpool = nn.AdaptiveAvgPool2d((7, 7))
 
         # Fully connected layer
         self.fc1 = nn.Linear(2048, 512)
