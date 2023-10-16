@@ -83,7 +83,7 @@ class CustomNetwork(nn.Module):
 
         x = self.avgpool(x)
 
-        x = x.view(-1, 2048)
+        x = x.view(x.size(0), -1)
 
         x = self.fc1(x)
         x = self.relu7(x)
