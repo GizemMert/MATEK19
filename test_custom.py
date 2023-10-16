@@ -22,7 +22,7 @@ num_classes = len(unique_labels)
 model = CustomNetwork(num_classes)
 
 # Load the trained weights
-model.load_state_dict(torch.load('resnet_model.pth'))
+model.load_state_dict(torch.load('custom_model.pth'))
 
 # Loss function
 criterion = nn.CrossEntropyLoss()
