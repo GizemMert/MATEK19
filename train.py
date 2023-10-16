@@ -17,7 +17,7 @@ learning_rate = 0.001
 # Data loaders
 train_loader, val_loader, _ = get_data_loaders('/lustre/groups/labs/marr/qscd01/datasets/191024_AML_Matek'
                                                '/train_val_test',
-                                               batch_size=batch_size, num_workers=0)
+                                               batch_size=128, num_workers=0)
 
 # of classes in training data
 unique_labels = set()
