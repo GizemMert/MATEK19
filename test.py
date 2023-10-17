@@ -7,8 +7,7 @@ from Autoencoder import Autoencoder
 batch_size = 128
 
 # Data loader
-_, _, test_loader = get_data_loaders('/lustre/groups/labs/marr/qscd01/datasets/191024_AML_Matek'
-                                     '/train_val_test',
+_, _, test_loader = get_data_loaders('/lustre/groups/labs/marr/qscd01/datasets/191024_AML_Matek/train_val_test',
                                      batch_size=batch_size, num_workers=0)
 
 # Number of classes in test data
