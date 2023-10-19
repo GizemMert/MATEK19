@@ -1,14 +1,11 @@
-import torch
 import torch.nn as nn
 
-# Define the custom encoder using the provided architecture
 
-
-class CustomEncoder(nn.Module):
+class Autoencoder(nn.Module):
     def __init__(self):
-        super(CustomEncoder, self).__init__()
+        super(Autoencoder, self).__init__()
 
-        # Your custom network (the encoder part)
+        # Encoder layers
         self.encoder = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(64),
@@ -24,40 +21,31 @@ class CustomEncoder(nn.Module):
             nn.BatchNorm2d(512),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
-            nn.Conv2d(512, 1024, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(512, 1024, kernel_size=3, stride=2, padding=1),
             nn.BatchNorm2d(1024),
             nn.ReLU(),
-            nn.Conv2d(1024, 2048, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(1024, 2048, kernel_size=3, stride=2, padding=1),
             nn.BatchNorm2d(2048),
             nn.ReLU(),
-            nn.AdaptiveAvgPool2d((1, 1))
+            nn.AdaptiveAvgPool2d((7, 7))
         )
 
-# Define the autoencoder combining encoder and decoder
-
-
-class Autoencoder(nn.Module):
-    def __init__(self):
-        super(Autoencoder, self).__init__()
-        self.encoder = CustomEncoder()
-
-        # Define the decoder
         self.decoder = nn.Sequential(
-            nn.ConvTranspose2d(2048, 1024, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(1024),
+            nn.ConvTranspose2d(2048, 1024, kernel_size=3, stride=2, padding=1, output_padding=1),
             nn.ReLU(),
+
             nn.ConvTranspose2d(1024, 512, kernel_size=3, stride=2, padding=1, output_padding=1),
-            nn.BatchNorm2d(512),
             nn.ReLU(),
-            nn.ConvTranspose2d(512, 256, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(256),
+
+            nn.ConvTranspose2d(512, 256, kernel_size=3, stride=2, padding=1, output_padding=1),
             nn.ReLU(),
+
             nn.ConvTranspose2d(256, 128, kernel_size=3, stride=2, padding=1, output_padding=1),
-            nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.ConvTranspose2d(128, 64, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(64),
+
+            nn.ConvTranspose2d(128, 64, kernel_size=3, stride=2, padding=1, output_padding=1),
             nn.ReLU(),
+
             nn.ConvTranspose2d(64, 3, kernel_size=3, stride=1, padding=1),
             nn.Tanh()
         )

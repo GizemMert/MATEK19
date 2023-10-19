@@ -20,7 +20,7 @@ num_classes = len(unique_labels)
 model = Autoencoder()  # Create an instance of your Autoencoder model
 
 # Load the trained weights
-model.load_state_dict(torch.load('autoencoder_model.pth'))
+model.load_state_dict(torch.load('best_autoencoder_model.pth'))
 
 # Loss function (MSE for autoencoder)
 criterion = nn.MSELoss()

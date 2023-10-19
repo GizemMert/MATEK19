@@ -15,8 +15,9 @@ num_epochs = 50
 learning_rate = 0.001
 
 # Data loaders
-train_loader, val_loader, _ = get_data_loaders('/lustre/groups/labs/marr/qscd01/datasets/191024_AML_Matek/train_val_test',
-                                               batch_size=batch_size, num_workers=0)
+train_loader, val_loader, _ = get_data_loaders('/lustre/groups/labs/marr/qscd01/datasets/191024_AML_Matek'
+                                               '/train_val_test',
+                                               batch_size=128, num_workers=0)
 
 # of classes in training data
 unique_labels = set()
@@ -29,7 +30,7 @@ model = Autoencoder()
 
 # Loss function and optimizer
 criterion = nn.MSELoss()  # Use Mean Squared Error (MSE) loss
-optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
 
 # Training loop
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -39,7 +40,6 @@ train_losses = []
 val_losses = []
 best_val_loss = float('inf')
 
-# Open a file for saving the training results
 results_file = open("training_results_autoencoder.txt", "w")
 
 try:
@@ -47,12 +47,11 @@ try:
         model.train()
         train_loss = 0.0
 
-        for images, labels in train_loader:
+        for images, _ in train_loader:
             images = images.to(device)
-            labels = labels.to(device)
             optimizer.zero_grad()
             outputs = model(images)
-            loss = criterion(outputs, labels)
+            loss = criterion(outputs, images)
             loss.backward()
             optimizer.step()
             train_loss += loss.item()
@@ -65,17 +64,15 @@ try:
         val_loss = 0.0
 
         with torch.no_grad():
-            for images, labels in val_loader:
+            for images, _ in val_loader:
                 images = images.to(device)
-                labels = labels.to(device)
                 outputs = model(images)
-                loss = criterion(outputs, labels)
+                loss = criterion(outputs, images)
                 val_loss += loss.item()
 
         val_loss /= len(val_loader)
         val_losses.append(val_loss)
 
-        # Print training and validation losses on the same line
         print(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}")
 
         # Save results to the file
@@ -83,8 +80,8 @@ try:
         results_file.write(f"Train Loss: {train_loss:.4f}\n")
         results_file.write(f"Validation Loss: {val_loss:.4f}\n\n")
 
-        if val_loss < best_val_loss:  # Check if the current validation loss is the best
-            best_val_loss = val_loss  # Update the best validation loss
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
             torch.save(model.state_dict(), 'best_autoencoder_model.pth')
 
     results_file.close()
@@ -92,6 +89,7 @@ try:
 except KeyboardInterrupt:
     print("Training interrupted.")
     torch.save(model.state_dict(), 'best_autoencoder_model.pth')
+
 
 # Plot loss
 plt.figure(figsize=(8, 6))
