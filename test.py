@@ -6,7 +6,8 @@ from DataLoader import get_data_loaders
 from sklearn.metrics import accuracy_score, f1_score
 from Model_Custom import CustomNetwork
 from Autoencoder import Autoencoder
-from torchmetrics.image import StructuralSimilarityIndexMeasure, FrechetInceptionDistance
+from torchmetrics.image import StructuralSimilarityIndexMeasure
+from pytorch_fid import fid_score
 from torchvision.utils import save_image
 
 batch_size = 128
@@ -60,8 +61,8 @@ with torch.no_grad():
             ssim = ssim_metric(image, output)
             ssim_loss = 1 - ssim
             ssim_losses.append(ssim_loss)
-            fid_score = fid(images, outputs)
-            fid_scores.append(fid_score)
+            fid = fid_score.calculate_fid(images, outputs)
+            fid_scores.append(fid)
             print(f"SSIM for image {i}: {ssim.item()}")
             print(f"FID for image {i}: {fid_score.item()}")
 
