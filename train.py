@@ -1,13 +1,12 @@
 import torch
+import os
 import torch.nn as nn
 import torch.optim as optim
-from torchvision import models
-from sklearn.metrics import accuracy_score, f1_score
-from torchvision.models import ResNet50_Weights
-from Model_Custom import CustomNetwork
 from DataLoader import get_data_loaders
-import matplotlib.pyplot as plt
 from Autoencoder import Autoencoder
+from torchmetrics.image import StructuralSimilarityIndexMeasure
+from torchmetrics.image.fid import FrechetInceptionDistance
+from torchvision.utils import save_image
 
 
 batch_size = 128
@@ -31,6 +30,8 @@ model = Autoencoder()
 # Loss function and optimizer
 criterion = nn.MSELoss()  # Use Mean Squared Error (MSE) loss
 optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
+ssim_metric = StructuralSimilarityIndexMeasure()
+fid = FrechetInceptionDistance(normalize=True)
 
 # Training loop
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -38,50 +39,96 @@ model.to(device)
 
 train_losses = []
 val_losses = []
-best_val_loss = float('inf')
+best_loss_val = float('inf')
 
 results_file = open("training_results_autoencoder.txt", "w")
 
 try:
     for epoch in range(num_epochs):
+
         model.train()
-        train_loss = 0.0
+        loss_train = 0.0
+        mse_loss_train = 0.0
+        ssim_loss_train = 0.0
 
         for images, _ in train_loader:
             images = images.to(device)
             optimizer.zero_grad()
             outputs = model(images)
-            loss = criterion(outputs, images)
-            loss.backward()
+            mse = criterion(outputs, images)
+            ssim = 1 - ssim_metric(images, outputs)
+            train_loss = mse + ssim
+            train_loss.backward()
             optimizer.step()
-            train_loss += loss.item()
 
-        train_loss /= len(train_loader)
-        train_losses.append(train_loss)
+            loss_train += train_loss.item()
+            mse_loss_train += mse.item()
+            ssim_loss_train += ssim.item()
+
+            fid.update(images, real=True)
+            fid.update(outputs, real=False)
+
+        loss_train /= len(train_loader)
+        train_losses.append(loss_train)
+        mse_loss_train /= len(train_loader)
+        ssim_loss_train /= len(train_loader)
+        fid_train = fid.compute()
 
         # Validation loop
         model.eval()
-        val_loss = 0.0
+        loss_val = 0.0
+        mse_loss_val = 0.0
+        ssim_loss_val = 0.0
+
+        save_folder = "reconstructedvsoriginal"
+        os.makedirs(save_folder, exist_ok=True)
 
         with torch.no_grad():
             for images, _ in val_loader:
                 images = images.to(device)
                 outputs = model(images)
-                loss = criterion(outputs, images)
-                val_loss += loss.item()
+                mse = criterion(outputs, images)
+                ssim = 1 - ssim_metric(images, outputs)
+                val_loss = mse + ssim
 
-        val_loss /= len(val_loader)
-        val_losses.append(val_loss)
+                loss_val += val_loss.item()
+                mse_loss_val += mse.item()
+                ssim_loss_val += ssim.item()
 
-        print(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}")
+                fid.update(images, real=True)
+                fid.update(outputs, real=False)
 
-        # Save results to the file
+            loss_val /= len(val_loader)
+            val_losses.append(loss_val)
+            mse_loss_val /= len(val_loader)
+            ssim_loss_val /= len(val_loader)
+            fid_val = fid.compute()
+
+        for i, (images, _) in enumerate(val_loader):
+            if i >= 5:
+                break
+            images = images.to(device)
+            outputs = model(images)
+            images *= 255
+            outputs *= 255
+
+            concatenated_images = torch.cat((images, outputs), dim=3)
+            save_image(concatenated_images, os.path.join(save_folder, f'epoch_{epoch}_image_{i}.jpg'))
+            break
+
+        print(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {loss_train:.4f}, Validation Loss: {loss_val:.4f}, "
+              f"SSIM Train Loss:{ssim_loss_train:.4f}, SSIM Val Loss:{ssim_loss_val:.4f}, "
+              f"FID Train: {float(fid_train):.4f}, FID Val: {float(fid_val):.4f}, "
+              f"MSE Train: {mse_loss_train:.4f}, MSE Val: {mse_loss_val:.4f}")
+
         results_file.write(f"Epoch {epoch + 1}/{num_epochs}\n")
-        results_file.write(f"Train Loss: {train_loss:.4f}\n")
-        results_file.write(f"Validation Loss: {val_loss:.4f}\n\n")
+        results_file.write(f"Train Loss: {loss_train:.4f}\n")
+        results_file.write(f"Validation Loss: {loss_val:.4f}\n\n")
+        results_file.write(f"SSIM Train Loss:{ssim_loss_train:.4f}\n\n")
+        results_file.write(f"SSIM Val Loss:{ssim_loss_val:.4f}\n\n")
 
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
+        if loss_val < best_loss_val:
+            best_val_loss = loss_val
             torch.save(model.state_dict(), 'best_autoencoder_model.pth')
 
     results_file.close()
@@ -89,19 +136,3 @@ try:
 except KeyboardInterrupt:
     print("Training interrupted.")
     torch.save(model.state_dict(), 'best_autoencoder_model.pth')
-
-
-# Plot loss
-plt.figure(figsize=(8, 6))
-plt.plot(range(1, num_epochs + 1), train_losses, label='Train Loss', marker='o', linestyle='-', color='b')
-plt.plot(range(1, num_epochs + 1), val_losses, label='Validation Loss', marker='o', linestyle='-', color='r')
-plt.xlabel('Epoch')
-plt.ylabel('Loss')
-plt.title('Train and Validation Loss Over Epochs')
-plt.legend()
-plt.grid(True)
-plt.xticks(range(1, num_epochs + 1))
-plt.minorticks_on()
-plt.grid(which='minor', linestyle='--', linewidth=0.5, alpha=0.7)
-plt.tight_layout()
-plt.savefig('loss_plot.png', dpi=300)
