@@ -56,9 +56,7 @@ with torch.no_grad():
             save_image(torch.cat([images, outputs], dim=3), os.path.join(output_folder, f'reconstructed_{i}.png'), nrow=1)
             print(f"Reconstructed image {i} saved!")
 
-        for image, output in zip(images, outputs):
-            image = image.permute(1, 2, 0).cpu().numpy()
-            output = output.permute(1, 2, 0).cpu().numpy()
+        for image, output in zip(images.cpu().numpy(), outputs.cpu().numpy()):
             ssim = ssim_metric(image, output)
             ssim_loss = 1 - ssim
             ssim_losses.append(ssim_loss)
