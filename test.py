@@ -39,7 +39,6 @@ os.makedirs(output_folder, exist_ok=True)
 
 ssim_metric = StructuralSimilarityIndexMeasure()
 ssim_losses = []
-fid = FrechetInceptionDistance()
 fid_scores = []
 
 random_indices = random.sample(range(len(test_loader.dataset)), 10)
@@ -63,8 +62,6 @@ with torch.no_grad():
             ssim_losses.append(ssim_loss)
             fid = fid_score.calculate_fid(images, outputs)
             fid_scores.append(fid)
-            print(f"SSIM for image {i}: {ssim.item()}")
-            print(f"FID for image {i}: {fid_score.item()}")
 
 
 test_loss /= len(test_loader)
