@@ -55,17 +55,15 @@ with torch.no_grad():
             ssim_loss = 1 - ssim
             ssim_losses.append(ssim_loss)
 
+        images_to_compare = []
+        if i in random_indices:
+            images = images * 255
+            outputs = outputs * 255
+            image = torch.cat([images[i], outputs[i]], dim=2).cpu()
+            images_to_compare.append(image)
+            save_image(torch.stack(images_to_compare), os.path.join(output_folder, f'reconstructed_random_{i}.png'), nrow=1)
 
 test_loss /= len(test_loader)
 
 print(f"Test Loss (MSE): {test_loss:.4f}")
 print(f"Average SSIM Loss: {sum(ssim_losses) / len(ssim_losses):.4f}")
-
-images_to_compare = []
-for i in random_indices:
-    images = images * 255
-    outputs = outputs * 255
-    image = torch.cat([images[i], outputs[i]], dim=2).cpu()
-    images_to_compare.append(image)
-
-save_image(torch.stack(images_to_compare), os.path.join(output_folder, f'reconstructed_random_{i}.png'), nrow=1)
