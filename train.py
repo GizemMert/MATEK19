@@ -115,7 +115,7 @@ try:
             images = (images * 255).cpu().detach().numpy().astype(np.uint8)
             outputs = (outputs * 255).cpu().detach().numpy().astype(np.uint8)
 
-            concatenated_images = np.concatenate((images, outputs), axis=3)
+            concatenated_images = np.concatenate((images, outputs), axis=2)
 
             for j in range(images.shape[0]):
                 concatenated_image = Image.fromarray(
