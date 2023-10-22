@@ -59,7 +59,7 @@ try:
             optimizer.zero_grad()
             outputs = model(images)
             mse = criterion(outputs, images)
-            ssim = 1 - ssim_metric(images, outputs)
+            ssim = 1 - ssim_metric(outputs, images)
             train_loss = mse + ssim
             train_loss.backward()
             optimizer.step()
@@ -91,7 +91,7 @@ try:
                 images = images.to(device)
                 outputs = model(images)
                 mse = criterion(outputs, images)
-                ssim = 1 - ssim_metric(images, outputs)
+                ssim = 1 - ssim_metric(outputs, images)
                 val_loss = mse + ssim
 
                 loss_val += val_loss.data.cpu()
