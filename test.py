@@ -45,12 +45,14 @@ random_indices = random.sample(range(len(test_loader.dataset)), 10)
 
 with torch.no_grad():
     for i, (images, _) in enumerate(test_loader):
-        if i in random_indices:
-            images = images.to(device)
-            outputs = model(images)
-            loss = criterion(outputs, images)
-            test_loss += loss.item()
+        images = images.to(device)
+        outputs = model(images)
+        loss = criterion(outputs, images)
+        test_loss += loss.item()
 
+        if i in random_indices:
+            images = images * 255
+            outputs = outputs * 255
             save_image(torch.cat([images, outputs], dim=3), os.path.join(output_folder, f'reconstructed_{i}.png'), nrow=1)
             print(f"Reconstructed image {i} saved!")
 
