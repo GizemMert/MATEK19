@@ -39,7 +39,6 @@ os.makedirs(output_folder, exist_ok=True)
 
 ssim_metric = StructuralSimilarityIndexMeasure()
 ssim_losses = []
-fid_scores = []
 
 random_indices = random.sample(range(len(test_loader.dataset)), 10)
 
@@ -50,8 +49,7 @@ with torch.no_grad():
         loss = criterion(outputs, images)
         test_loss += loss.item()
 
-        fid = fid_score.calculate_fid(images, outputs)
-        fid_scores.append(fid)
+        fid_value = fid_score.calculate_fid(images, outputs)
 
         for image, output in zip(images, outputs):
             image = image.unsqueeze(0).cpu().numpy()
@@ -71,4 +69,4 @@ test_loss /= len(test_loader)
 
 print(f"Test Loss (MSE): {test_loss:.4f}")
 print(f"Average SSIM Loss: {sum(ssim_losses) / len(ssim_losses):.4f}")
-print(f"Average FID: {sum(fid_scores) / len(fid_scores):.4f}")
+print(f"FID Score: {fid_value:.4f}")
