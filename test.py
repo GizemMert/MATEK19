@@ -23,23 +23,19 @@ num_classes = len(unique_labels)
 model = Autoencoder()
 model.load_state_dict(torch.load('best_autoencoder_model.pth'))
 
-
 criterion = nn.MSELoss()
+ssim_metric = StructuralSimilarityIndexMeasure()
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 model.eval()
 
 test_loss = 0.0
+ssim_loss_test = 0.0
 
-
-output_folder = "reconstructed_images"
+output_folder = "reconstructed"
 os.makedirs(output_folder, exist_ok=True)
-
-ssim_metric = StructuralSimilarityIndexMeasure()
-ssim_losses = []
-
-random_indices = random.sample(range(len(test_loader.dataset)), 10)
+images_to_compare = []
 
 with torch.no_grad():
     for i, (images, _) in enumerate(test_loader):
@@ -51,19 +47,20 @@ with torch.no_grad():
         for image, output in zip(images, outputs):
             image = image.unsqueeze(0).cpu()
             output = output.unsqueeze(0).cpu()
-            ssim = ssim_metric(image, output)
-            ssim_loss = 1 - ssim
-            ssim_losses.append(ssim_loss)
+            ssim = 1 - ssim_metric(image, output)
+            ssim_loss_test += ssim.item()
 
-        images_to_compare = []
-        if i in random_indices:
+        if i < 10:
             images = images * 255
             outputs = outputs * 255
             image = torch.cat([images[i], outputs[i]], dim=2).cpu()
             images_to_compare.append(image)
-            save_image(torch.stack(images_to_compare), os.path.join(output_folder, f'reconstructed_random_{i}.png'), nrow=1)
 
 test_loss /= len(test_loader)
+ssim_loss_test /= len(test_loader)
 
 print(f"Test Loss (MSE): {test_loss:.4f}")
-print(f"Average SSIM Loss: {sum(ssim_losses) / len(ssim_losses):.4f}")
+print(f"Average SSIM Loss: {ssim_loss_test:.4f}")
+
+for i in range(10):
+    save_image(images_to_compare[i], os.path.join(output_folder, f'reconstructed_{i}.png'), nrow=1)
