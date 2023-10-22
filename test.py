@@ -50,18 +50,21 @@ with torch.no_grad():
         loss = criterion(outputs, images)
         test_loss += loss.item()
 
+        fid = fid_score.calculate_fid(images, outputs)
+        fid_scores.append(fid)
+
+        for image, output in zip(images, outputs):
+            image = image.unsqueeze(0).cpu().numpy()
+            output = output.unsqueeze(0).cpu().numpy()
+            ssim = ssim_metric(image, output)
+            ssim_loss = 1 - ssim
+            ssim_losses.append(ssim_loss)
+
         if i in random_indices:
             images = images * 255
             outputs = outputs * 255
             save_image(torch.cat([images, outputs], dim=3), os.path.join(output_folder, f'reconstructed_{i}.png'), nrow=1)
             print(f"Reconstructed image {i} saved!")
-
-        for image, output in zip(images.cpu().numpy(), outputs.cpu().numpy()):
-            ssim = ssim_metric(image, output)
-            ssim_loss = 1 - ssim
-            ssim_losses.append(ssim_loss)
-            fid = fid_score.calculate_fid(images, outputs)
-            fid_scores.append(fid)
 
 
 test_loss /= len(test_loader)
@@ -69,4 +72,3 @@ test_loss /= len(test_loader)
 print(f"Test Loss (MSE): {test_loss:.4f}")
 print(f"Average SSIM Loss: {sum(ssim_losses) / len(ssim_losses):.4f}")
 print(f"Average FID: {sum(fid_scores) / len(fid_scores):.4f}")
-
