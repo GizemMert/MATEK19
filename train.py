@@ -112,10 +112,10 @@ try:
                 break
             images = images.to(device)
             outputs = model(images)
-            images *= 255
-            outputs *= 255
+            images = (images * 255).cpu().detach().numpy().astype(np.uint8)
+            outputs = (outputs * 255).cpu().detach().numpy().astype(np.uint8)
 
-            concatenated_images = np.concatenate((images.cpu().numpy(), outputs.cpu().numpy()), axis=3)
+            concatenated_images = np.concatenate((images, outputs), axis=3)
 
             for j in range(images.shape[0]):
                 concatenated_image = Image.fromarray(
