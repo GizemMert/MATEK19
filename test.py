@@ -49,8 +49,8 @@ with torch.no_grad():
         test_loss += loss.item()
 
         for image, output in zip(images, outputs):
-            image = image.unsqueeze(0).cpu().numpy()
-            output = output.unsqueeze(0).cpu().numpy()
+            image = image.unsqueeze(0).cpu()
+            output = output.unsqueeze(0).cpu()
             ssim = ssim_metric(image, output)
             ssim_loss = 1 - ssim
             ssim_losses.append(ssim_loss)
