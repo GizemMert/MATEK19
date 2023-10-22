@@ -1,5 +1,7 @@
 import torch
 import os
+import numpy as np
+from PIL import Image
 import torch.nn as nn
 import torch.optim as optim
 from DataLoader import get_data_loaders
@@ -62,9 +64,9 @@ try:
             train_loss.backward()
             optimizer.step()
 
-            loss_train += train_loss.item()
-            mse_loss_train += mse.item()
-            ssim_loss_train += ssim.item()
+            loss_train += train_loss.data.cpu()
+            mse_loss_train += mse.data.cpu()
+            ssim_loss_train += ssim.data.cpu()
 
             fid.update(images, real=True)
             fid.update(outputs, real=False)
@@ -92,9 +94,9 @@ try:
                 ssim = 1 - ssim_metric(images, outputs)
                 val_loss = mse + ssim
 
-                loss_val += val_loss.item()
-                mse_loss_val += mse.item()
-                ssim_loss_val += ssim.item()
+                loss_val += val_loss.data.cpu()
+                mse_loss_val += mse.data.cpu()
+                ssim_loss_val += ssim.data.cpu()
 
                 fid.update(images, real=True)
                 fid.update(outputs, real=False)
@@ -113,9 +115,15 @@ try:
             images *= 255
             outputs *= 255
 
-            concatenated_images = torch.cat((images, outputs), dim=3)
-            save_image(concatenated_images, os.path.join(save_folder, f'epoch_{epoch}_image_{i}.jpg'))
-            break
+            concatenated_images = np.concatenate((images.cpu().numpy(), outputs.cpu().numpy()), axis=3)
+
+            for j in range(images.shape[0]):
+                concatenated_image = Image.fromarray(
+                    concatenated_images[j].transpose(1, 2, 0))
+                concatenated_image.save(os.path.join(save_folder, f'epoch_{epoch}_image_{i}_batch_{j}.jpg'))
+
+            if i >= 5:
+                break
 
         print(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {loss_train:.4f}, Validation Loss: {loss_val:.4f}, "
               f"SSIM Train Loss:{ssim_loss_train:.4f}, SSIM Val Loss:{ssim_loss_val:.4f}, "
