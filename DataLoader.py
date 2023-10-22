@@ -51,7 +51,7 @@ def get_data_loaders(data_dir, batch_size, num_workers):
     transform = transforms.Compose([
         transforms.Resize((224, 224)),  # Resize
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+        Normalize()
     ])
 
     train_dataset = MatekDataLoader(data_dir, split='train', transform=transform)
@@ -63,3 +63,8 @@ def get_data_loaders(data_dir, batch_size, num_workers):
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
     return train_loader, val_loader, test_loader
+
+class Normalize(object):
+    def __call__(self, image):
+        return image / 255.0
+    

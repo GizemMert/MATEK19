@@ -47,7 +47,7 @@ class Autoencoder(nn.Module):
             nn.ReLU(),
 
             nn.ConvTranspose2d(64, 3, kernel_size=3, stride=1, padding=1),
-            nn.Tanh()
+            nn.Sigmoid()
         )
 
     def forward(self, x):
