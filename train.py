@@ -33,7 +33,7 @@ model.to(device)
 
 # Loss function and optimizer
 criterion = nn.MSELoss()
-optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
+optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-3)
 ssim_metric = StructuralSimilarityIndexMeasure().to(device)
 
 
