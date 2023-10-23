@@ -18,7 +18,7 @@ for _, label in val_loader.dataset:
 num_classes = len(unique_labels)
 
 model = Autoencoder()
-model.load_state_dict(torch.load('best_autoencoder_model.pth'))
+model.load_state_dict(torch.load('best_autoencoder_mod.pth'))
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 model.eval()
