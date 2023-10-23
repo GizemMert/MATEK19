@@ -9,8 +9,8 @@ from Autoencoder import Autoencoder
 from torchmetrics.image import StructuralSimilarityIndexMeasure
 
 
-batch_size = 128
-num_epochs = 50
+batch_size = 64
+num_epochs = 30
 learning_rate = 0.001
 
 # Data loaders
