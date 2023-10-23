@@ -8,10 +8,9 @@ from DataLoader import get_data_loaders
 from Autoencoder import Autoencoder
 from torchmetrics.image import StructuralSimilarityIndexMeasure
 from torchmetrics.image.fid import FrechetInceptionDistance
-from torchvision.utils import save_image
 
 
-batch_size = 128
+batch_size = 64
 num_epochs = 50
 learning_rate = 0.001
 
