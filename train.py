@@ -7,7 +7,6 @@ import torch.optim as optim
 from DataLoader import get_data_loaders
 from Autoencoder import Autoencoder
 from torchmetrics.image import StructuralSimilarityIndexMeasure
-from torchmetrics.image.fid import FrechetInceptionDistance
 
 
 batch_size = 64
@@ -36,7 +35,6 @@ model.to(device)
 criterion = nn.MSELoss()  # Use Mean Squared Error (MSE) loss
 optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
 ssim_metric = StructuralSimilarityIndexMeasure().to(device)
-fid = FrechetInceptionDistance(normalize=True).to(device)
 
 
 train_losses = []
@@ -67,14 +65,10 @@ try:
             mse_loss_train += mse.data.cpu()
             ssim_loss_train += ssim.data.cpu()
 
-            fid.update(images, real=True)
-            fid.update(outputs, real=False)
-
         loss_train /= len(train_loader)
-        train_losses.append(loss_train)
         mse_loss_train /= len(train_loader)
         ssim_loss_train /= len(train_loader)
-        fid_train = fid.compute()
+        train_losses.append(loss_train)
 
         # Validation loop
         model.eval()
@@ -97,14 +91,10 @@ try:
                 mse_loss_val += mse.data.cpu()
                 ssim_loss_val += ssim.data.cpu()
 
-                fid.update(images, real=True)
-                fid.update(outputs, real=False)
-
             loss_val /= len(val_loader)
-            val_losses.append(loss_val)
             mse_loss_val /= len(val_loader)
             ssim_loss_val /= len(val_loader)
-            fid_val = fid.compute()
+            val_losses.append(loss_val)
 
         for i, (images, _) in enumerate(val_loader):
             if i >= 5:
@@ -126,7 +116,6 @@ try:
 
         print(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {loss_train:.4f}, Validation Loss: {loss_val:.4f}, "
               f"SSIM Train Loss:{ssim_loss_train:.4f}, SSIM Val Loss:{ssim_loss_val:.4f}, "
-              f"FID Train: {float(fid_train):.4f}, FID Val: {float(fid_val):.4f}, "
               f"MSE Train: {mse_loss_train:.4f}, MSE Val: {mse_loss_val:.4f}")
 
         results_file.write(f"Epoch {epoch + 1}/{num_epochs}\n")
