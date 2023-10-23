@@ -9,7 +9,7 @@ from Autoencoder import Autoencoder
 from torchmetrics.image import StructuralSimilarityIndexMeasure
 
 
-batch_size = 64
+batch_size = 128
 num_epochs = 50
 learning_rate = 0.001
 
@@ -32,7 +32,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
 # Loss function and optimizer
-criterion = nn.MSELoss()  # Use Mean Squared Error (MSE) loss
+criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
 ssim_metric = StructuralSimilarityIndexMeasure().to(device)
 
@@ -61,9 +61,9 @@ try:
             train_loss.backward()
             optimizer.step()
 
-            loss_train += train_loss.data.cpu()
-            mse_loss_train += mse.data.cpu()
-            ssim_loss_train += ssim.data.cpu()
+            loss_train += train_loss.item()
+            mse_loss_train += mse.item()
+            ssim_loss_train += ssim.item()
 
         loss_train /= len(train_loader)
         mse_loss_train /= len(train_loader)
@@ -76,9 +76,6 @@ try:
         mse_loss_val = 0.0
         ssim_loss_val = 0.0
 
-        save_folder = "reconstructedvsoriginal"
-        os.makedirs(save_folder, exist_ok=True)
-
         with torch.no_grad():
             for images, _ in val_loader:
                 images = images.to(device)
@@ -87,32 +84,14 @@ try:
                 ssim = 1 - ssim_metric(outputs, images)
                 val_loss = mse + ssim
 
-                loss_val += val_loss.data.cpu()
-                mse_loss_val += mse.data.cpu()
-                ssim_loss_val += ssim.data.cpu()
+                loss_val += val_loss.item()
+                mse_loss_val += mse.item()
+                ssim_loss_val += ssim.item()
 
             loss_val /= len(val_loader)
             mse_loss_val /= len(val_loader)
             ssim_loss_val /= len(val_loader)
             val_losses.append(loss_val)
-
-        for i, (images, _) in enumerate(val_loader):
-            if i >= 5:
-                break
-            images = images.to(device)
-            outputs = model(images)
-            images = (images * 255).cpu().detach().numpy().astype(np.uint8)
-            outputs = (outputs * 255).cpu().detach().numpy().astype(np.uint8)
-
-            concatenated_images = np.concatenate((images, outputs), axis=2)
-
-            for j in range(images.shape[0]):
-                concatenated_image = Image.fromarray(
-                    concatenated_images[j].transpose(1, 2, 0))
-                concatenated_image.save(os.path.join(save_folder, f'epoch_{epoch}_image_{i}_batch_{j}.jpg'))
-
-            if i >= 5:
-                break
 
         print(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {loss_train:.4f}, Validation Loss: {loss_val:.4f}, "
               f"SSIM Train Loss:{ssim_loss_train:.4f}, SSIM Val Loss:{ssim_loss_val:.4f}, "
@@ -126,10 +105,10 @@ try:
 
         if loss_val < best_loss_val:
             best_val_loss = loss_val
-            torch.save(model.state_dict(), 'best_autoencoder_model.pth')
+            torch.save(model.state_dict(), 'best_autoencoder_mod.pth')
 
     results_file.close()
 
 except KeyboardInterrupt:
     print("Training interrupted.")
-    torch.save(model.state_dict(), 'best_autoencoder_model.pth')
+    torch.save(model.state_dict(), 'best_autoencoder_mod.pth')
