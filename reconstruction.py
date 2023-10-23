@@ -9,9 +9,11 @@ from Autoencoder import Autoencoder
 _, val_loader, _ = get_data_loaders('/lustre/groups/labs/marr/qscd01/datasets/191024_AML_Matek'
                                     '/train_val_test',
                                     batch_size=1, num_workers=0)
-
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = Autoencoder()
 model.load_state_dict(torch.load('best_autoencoder_model.pth'))
+model.to(device)
+
 model.eval()
 
 save_folder = "outputsvsimages"
@@ -19,7 +21,7 @@ os.makedirs(save_folder, exist_ok=True)
 
 with torch.no_grad():
     for i, (images, _) in enumerate(val_loader):
-        images = images.to(torch.device("cuda" if torch.cuda.is_available() else "cpu"))
+        images = images.to(device)
         outputs = model(images)
 
         images = (images * 255).cpu().detach().numpy().astype(np.uint8)
