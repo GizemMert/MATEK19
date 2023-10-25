@@ -23,7 +23,7 @@ class Autoencoder(nn.Module):
             nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.Conv2d(64, 10, kernel_size=2, stride=1),
-            nn.BatchNorm2d(20),
+            nn.BatchNorm2d(10),
             nn.ReLU(),
             # nn.Flatten(),
             # nn.Linear(15680, 1000),
