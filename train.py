@@ -5,7 +5,7 @@ from PIL import Image
 import torch.nn as nn
 import torch.optim as optim
 from DataLoader import get_data_loaders
-from Autoencoder import Autoencoder
+from AE_copy import Autoencoder1
 from torchmetrics.image import StructuralSimilarityIndexMeasure
 
 batch_size = 64
@@ -24,7 +24,7 @@ for _, label in train_loader.dataset:
 
 num_classes = len(unique_labels)
 
-model = Autoencoder()
+model = Autoencoder1()
 
 # Training loop
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

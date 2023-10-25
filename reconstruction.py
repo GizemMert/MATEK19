@@ -3,7 +3,7 @@ import os
 import numpy as np
 from PIL import Image
 from DataLoader import get_data_loaders
-from Autoencoder import Autoencoder
+from AE_copy import Autoencoder1
 from torchvision.utils import save_image
 
 batch_size = 64
@@ -17,13 +17,13 @@ for _, label in val_loader.dataset:
 
 num_classes = len(unique_labels)
 
-model = Autoencoder()
+model = Autoencoder1()
 model.load_state_dict(torch.load('50_autoencoder_mod.pth'))
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 model.eval()
 
-output_folder = "1028_reconstruct"
+output_folder = "1K_reconstruct_FLAT"
 os.makedirs(output_folder, exist_ok=True)
 images_to_compare = []
 

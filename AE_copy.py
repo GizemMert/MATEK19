@@ -12,49 +12,43 @@ class Autoencoder1(nn.Module):
             nn.Conv2d(64, 128, kernel_size=3, stride=2),
             nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(128, 256, kernel_size=3, stride=2),
+            nn.Conv2d(128, 256, kernel_size=3, stride=1),
             nn.BatchNorm2d(256),
             nn.ReLU(),
             nn.Conv2d(256, 128, kernel_size=2, stride=2),
             nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(128, 60, kernel_size=2, stride=2),
-            nn.BatchNorm2d(60),
+            nn.Conv2d(128, 64, kernel_size=2, stride=1),
+            nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(60, 50, kernel_size=2, stride=2),
-            nn.BatchNorm2d(50),
-            nn.ReLU(),
-            nn.Conv2d(50, 40, kernel_size=2),
-            nn.BatchNorm2d(40),
+            nn.Conv2d(64, 10, kernel_size=2, stride=1),
+            nn.BatchNorm2d(10),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(1000, 10)
+            nn.Linear(7840, 1000)
         )
 
         self.decoder = nn.Sequential(
-            nn.Linear(10, 1000),
+            nn.Linear(1000, 7840),
 
-            nn.Unflatten(1, (40, 5, 5)),
+            nn.Unflatten(1, (10, 28, 28)),
 
-            nn.ConvTranspose2d(40, 50, kernel_size=3),
+            nn.ConvTranspose2d(10, 64, kernel_size=2, stride=1),
             nn.ReLU(),
 
-            nn.ConvTranspose2d(50, 60, kernel_size=2, stride=2),
-            nn.ReLU(),
-
-            nn.ConvTranspose2d(60, 128, kernel_size=2, stride=2),
+            nn.ConvTranspose2d(64, 128, kernel_size=2, stride=1),
             nn.ReLU(),
 
             nn.ConvTranspose2d(128, 256, kernel_size=2, stride=2),
             nn.ReLU(),
 
-            nn.ConvTranspose2d(256, 128, kernel_size=2, stride=2),
+            nn.ConvTranspose2d(256, 200, kernel_size=3, stride=1),
             nn.ReLU(),
 
-            nn.ConvTranspose2d(128, 64, kernel_size=2, stride=2),
+            nn.ConvTranspose2d(200, 150, kernel_size=4, stride=2),
             nn.ReLU(),
 
-            nn.ConvTranspose2d(64, 3, kernel_size=1, stride=1),
+            nn.ConvTranspose2d(150, 3, kernel_size=3, stride=1),
             nn.Sigmoid()
         )
 
