@@ -5,7 +5,7 @@ from PIL import Image
 import torch.nn as nn
 import torch.optim as optim
 from DataLoader import get_data_loaders
-from AE_copy import Autoencoder1
+from Autoencoder import Autoencoder
 from torchmetrics.image import StructuralSimilarityIndexMeasure
 
 batch_size = 64
@@ -24,7 +24,7 @@ for _, label in train_loader.dataset:
 
 num_classes = len(unique_labels)
 
-model = Autoencoder1()
+model = Autoencoder()
 
 # Training loop
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -104,10 +104,10 @@ try:
 
         if loss_val < best_loss_val:
             best_val_loss = loss_val
-            torch.save(model.state_dict(), '1O_autoencoder_mod.pth')
+            torch.save(model.state_dict(), '25_autoencoder_mod.pth')
 
     results_file.close()
 
 except KeyboardInterrupt:
     print("Training interrupted.")
-    torch.save(model.state_dict(), '10_autoencoder_mod.pth')
+    torch.save(model.state_dict(), '25_autoencoder_mod.pth')
