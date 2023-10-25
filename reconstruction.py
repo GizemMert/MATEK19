@@ -23,7 +23,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 model.eval()
 
-output_folder = "ten_reconstruct"
+output_folder = "1K_reconstruct_flat"
 os.makedirs(output_folder, exist_ok=True)
 images_to_compare = []
 

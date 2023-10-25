@@ -27,9 +27,11 @@ class Autoencoder(nn.Module):
             nn.Conv2d(50, 40, kernel_size=2),
             nn.BatchNorm2d(40),
             nn.ReLU(),
+            nn.Flatten(),
         )
 
         self.decoder = nn.Sequential(
+            nn.Unflatten(1, (40, 5, 5)),
 
             nn.ConvTranspose2d(40, 50, kernel_size=3),
             nn.ReLU(),
