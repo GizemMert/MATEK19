@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.optim as optim
 from DataLoader import get_data_loaders
 from Autoencoder import Autoencoder
-from torchmetrics.image import MultiScaleStructuralSimilarityIndexMeasure
+from torchmetrics.image import StructuralSimilarityIndexMeasure
 
 batch_size = 64
 num_epochs = 30
@@ -33,7 +33,7 @@ model.to(device)
 # Loss function and optimizer
 criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-3)
-ssim_metric = MultiScaleStructuralSimilarityIndexMeasure().to(device)
+ssim_metric = StructuralSimilarityIndexMeasure().to(device)
 
 
 train_losses = []
