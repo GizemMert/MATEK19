@@ -25,12 +25,12 @@ class Autoencoder(nn.Module):
             nn.BatchNorm2d(20),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(15680, 1000),
-            nn.ReLU(),
+            # nn.Linear(15680, 1000),
+            # nn.ReLU(),
         )
 
         self.decoder = nn.Sequential(
-            nn.Linear(1000, 15680),
+            # nn.Linear(1000, 15680),
             nn.Unflatten(1, (20, 28, 28)),
 
             nn.ConvTranspose2d(20, 64, kernel_size=2, stride=1),
