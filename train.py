@@ -104,10 +104,10 @@ try:
 
         if loss_val < best_loss_val:
             best_val_loss = loss_val
-            torch.save(model.state_dict(), '25_autoencoder_mod.pth')
+            torch.save(model.state_dict(), '50_autoencoder_mod.pth')
 
     results_file.close()
 
 except KeyboardInterrupt:
     print("Training interrupted.")
-    torch.save(model.state_dict(), '25_autoencoder_mod.pth')
+    torch.save(model.state_dict(), '50_autoencoder_mod.pth')

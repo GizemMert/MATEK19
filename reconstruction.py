@@ -18,12 +18,12 @@ for _, label in val_loader.dataset:
 num_classes = len(unique_labels)
 
 model = Autoencoder()
-model.load_state_dict(torch.load('25_autoencoder_mod.pth'))
+model.load_state_dict(torch.load('50_autoencoder_mod.pth'))
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 model.eval()
 
-output_folder = "25_reconstruct"
+output_folder = "50_reconstruct"
 os.makedirs(output_folder, exist_ok=True)
 images_to_compare = []
 

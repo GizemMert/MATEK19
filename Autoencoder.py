@@ -18,11 +18,11 @@ class Autoencoder(nn.Module):
             nn.Conv2d(256, 128, kernel_size=2, stride=2),
             nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(128, 60, kernel_size=2, stride=1),
-            nn.BatchNorm2d(60),
+            nn.Conv2d(128, 64, kernel_size=2, stride=1),
+            nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(60, 25, kernel_size=2, stride=1),
-            nn.BatchNorm2d(25),
+            nn.Conv2d(64, 50, kernel_size=2, stride=2),
+            nn.BatchNorm2d(50),
             nn.ReLU(),
             # nn.Flatten(),
         )
@@ -30,10 +30,10 @@ class Autoencoder(nn.Module):
         self.decoder = nn.Sequential(
             # nn.Unflatten(1, (25, 5, 5)),
 
-            nn.ConvTranspose2d(25, 60, kernel_size=3, stride=1),
+            nn.ConvTranspose2d(50, 64, kernel_size=3, stride=2),
             nn.ReLU(),
 
-            nn.ConvTranspose2d(60, 128, kernel_size=2, stride=1),
+            nn.ConvTranspose2d(64, 128, kernel_size=2, stride=1),
             nn.ReLU(),
 
             nn.ConvTranspose2d(128, 256, kernel_size=2, stride=2),
