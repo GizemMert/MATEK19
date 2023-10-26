@@ -24,14 +24,14 @@ class Autoencoder1(nn.Module):
             nn.Conv2d(64, 10, kernel_size=2, stride=1),
             nn.BatchNorm2d(10),
             nn.ReLU(),
-            # nn.Flatten(),
-            # nn.Linear(7840, 1000)
+            nn.Flatten(),
+            nn.Linear(7840, 1000)
         )
 
         self.decoder = nn.Sequential(
-            # nn.Linear(1000, 7840),
+            nn.Linear(1000, 7840),
 
-            # nn.Unflatten(1, (10, 28, 28)),
+            nn.Unflatten(1, (10, 28, 28)),
             nn.ConvTranspose2d(10, 64, kernel_size=2, stride=1),
             nn.ReLU(),
 
