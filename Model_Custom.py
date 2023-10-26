@@ -77,7 +77,6 @@ class CustomNetwork(nn.Module):
         x = self.bn5(x)
         x = self.relu5(x)
 
-
         x = self.conv6(x)
         x = self.bn6(x)
         x = self.relu6(x)
