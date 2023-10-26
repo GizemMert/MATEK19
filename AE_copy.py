@@ -41,13 +41,13 @@ class Autoencoder1(nn.Module):
             nn.ConvTranspose2d(128, 256, kernel_size=2, stride=2),
             nn.ReLU(),
 
-            nn.ConvTranspose2d(256, 200, kernel_size=3, stride=1),
+            nn.ConvTranspose2d(256, 128, kernel_size=3, stride=1),
             nn.ReLU(),
 
-            nn.ConvTranspose2d(200, 150, kernel_size=4, stride=2),
+            nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2),
             nn.ReLU(),
 
-            nn.ConvTranspose2d(150, 3, kernel_size=3, stride=1),
+            nn.ConvTranspose2d(64, 3, kernel_size=3, stride=1),
             nn.Sigmoid()
         )
 
