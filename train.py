@@ -10,7 +10,7 @@ from torchmetrics.image import StructuralSimilarityIndexMeasure
 
 batch_size = 64
 num_epochs = 30
-learning_rate = 0.001
+learning_rate = 0.0001
 
 # Data loaders
 train_loader, val_loader, _ = get_data_loaders('/lustre/groups/labs/marr/qscd01/datasets/191024_AML_Matek'
@@ -31,7 +31,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
 # Loss function and optimizer
-criterion = nn.MSELoss()
+criterion = nn.BCELoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-3)
 ssim_metric = StructuralSimilarityIndexMeasure().to(device)
 
