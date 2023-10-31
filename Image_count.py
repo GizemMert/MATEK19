@@ -2,7 +2,7 @@ import os
 import glob
 
 
-directory_path = '/lustre/groups/labs/marr/qscd01/datasets/armingruber/_Domains/MLL_20221220'
+directory_path = '/lustre/groups/labs/marr/qscd01/datasets/armingruber/_Domains/Acevedo_cropped'
 
 total_images = 0
 
@@ -15,7 +15,7 @@ for subfolder in os.listdir(directory_path):
 
         total_images += num_images
 
-output_file = "total_images_count_MLL_cropped.txt"
+output_file = "total_images_count_Acevedo_cropped.txt"
 with open(output_file, "w") as file:
     file.write(f"Total number of images in the directory: {total_images}")
 
