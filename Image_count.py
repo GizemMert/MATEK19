@@ -10,7 +10,7 @@ for subfolder in os.listdir(directory_path):
     subfolder_path = os.path.join(directory_path, subfolder)
 
     if os.path.isdir(subfolder_path):
-        tiff_files = glob.glob(os.path.join(subfolder_path, '*.TIF'))
+        tiff_files = glob.glob(os.path.join(subfolder_path, '*.jpg'))
         num_images = len(tiff_files)
 
         total_images += num_images
