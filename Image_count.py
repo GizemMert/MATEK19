@@ -1,5 +1,6 @@
 import os
-from torchvision import datasets
+import glob
+
 
 directory_path = '/lustre/groups/labs/marr/qscd01/datasets/armingruber/_Domains/Matek_cropped'
 
