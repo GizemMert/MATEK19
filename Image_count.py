@@ -1,30 +1,22 @@
 import os
 from torchvision import datasets
 
-# Define the directory paths
-directory_paths = [
-    '/lustre/groups/labs/marr/qscd01/datasets/armingruber/_Domains/Matek_cropped',
-    '/lustre/groups/labs/marr/qscd01/datasets/armingruber/_Domains/MLL_20221220',
-    '/lustre/groups/labs/marr/qscd01/datasets/armingruber/_Domains/Acevedo_cropped'
-]
+directory_path = '/lustre/groups/labs/marr/qscd01/datasets/armingruber/_Domains/Matek_cropped'
 
-total_images_counts = []
+total_images = 0
 
-for directory_path in directory_paths:
-    total_images = 0
-    for subfolder in os.listdir(directory_path):
-        subfolder_path = os.path.join(directory_path, subfolder)
+for subfolder in os.listdir(directory_path):
+    subfolder_path = os.path.join(directory_path, subfolder)
 
-        if os.path.isdir(subfolder_path) and not subfolder == 'ipynb_checkpoints':
-            dataset = datasets.ImageFolder(subfolder_path)
-            num_images = len(dataset)
-            total_images += num_images
+    if os.path.isdir(subfolder_path):
+        tiff_files = glob.glob(os.path.join(subfolder_path, '*.tiff'))
+        num_images = len(tiff_files)
 
-    total_images_counts.append((directory_path, total_images))
+        total_images += num_images
 
+output_file = "total_images_count_Matek_cropped.txt"
+with open(output_file, "w") as file:
+    file.write(f"Total number of images in the directory: {total_images}")
 
-for directory_path, total_images in total_images_counts:
-    output_file = f"total_images_count_{os.path.basename(directory_path)}.txt"
-    with open(output_file, "w") as file:
-        file.write(f"Total number of images for {os.path.basename(directory_path)}: {total_images}")
-
+print(f"Total number of images in the directory: {total_images}")
+print(f"Result saved to {output_file}")
